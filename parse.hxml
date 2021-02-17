@@ -1,0 +1,7 @@
+-cp src
+-D analyzer-optimize
+-main Test
+--js
+--interp
+
+-lib tink_web

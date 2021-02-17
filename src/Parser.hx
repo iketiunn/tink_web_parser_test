@@ -15,9 +15,11 @@ class Parser {
 
 	// FIXME note, meta is array
 	public static function getMethod(meta:haxe.macro.Type.MetaAccess) {
-		for (m in metas.keys())
-			if (meta.has(m))
+		for (m in metas.keys()) {
+			if (meta.has(m)) {
 				return m;
+			}
+		}
 
 		if (meta.has(":all"))
 			return ":all";
@@ -25,6 +27,27 @@ class Parser {
 			return ":sub";
 
 		return ':none';
+	}
+
+	// Get meta name expect :none
+	public static function getMethodMeta(meta:haxe.macro.Type.MetaAccess) {
+		var _metas: Array<MetadataEntry> = [];
+		for (m in metas.keys()) {
+			if (meta.has(m)) {
+				_metas = _metas.concat(meta.extract(m));
+			}
+		}
+				
+		if (meta.has(":all"))
+			_metas = _metas.concat(meta.extract(':all'));
+		if (meta.has(":sub"))
+			_metas = _metas.concat(meta.extract(":sub"));
+
+		if (_metas.length > 1) {
+			trace('Waring: Mutitple metas is not support for now!');
+		}
+
+		return _metas;
 	}
 
 	public static function isEndpoint(meta:haxe.macro.Type.MetaAccess) {
@@ -60,20 +83,23 @@ class Parser {
 		};
 		trace("----------------------");
 		for (f in fields) {
-			// Not only method will inside the meta! assume we only prefix it only one meta now
-			trace("f.meta", Meta.getType(f));
+			// Get Method meta = not :none
+			var methodMetas = getMethodMeta(f.meta);
+			// Only get the first params in the first meta as prefix value
+			var metaValue =  methodMetas[0].params.length > 0 ? methodMetas[0].params[0].getValue() : '';
+			trace("Try to get meta prams: ", metaValue);
 			if (isEndpoint(f.meta)) {
 				var n: Node = {
 					module: type.getClass().module,
 					method: getMethod(f.meta),
-					prefix: "/", // empty string or values in @:get
+					prefix: metaValue, // empty str ing or values in @:get
 					functionName: f.name,
 					nodes: []
 				};
 				switch (f.type) {
 					// Fot getting args and returns
 					case TFun(args, ret):
-						trace("args:",args);
+						// trace("args:",args);
 						if (args.length > 0) {
 							// Push paramters
 						}
@@ -93,15 +119,15 @@ class Parser {
 				switch (f.type) {
 					// Fot getting args and returns
 					case TFun(args, ret):
-						trace("name:",f.name);
-						trace("args:",args);
-						trace("return:",ret);
+						// trace("name:",f.name);
+						// trace("args:",args);
+						// trace("return:",ret);
 						switch (ret) {
 							case TInst(t, params):
 								// Going deep
 								var tt = Context.getType(t.get().module + "." + t.get().name);
 								var f = tt.follow().getClass().fields.get();
-								trace(f[0]);
+								// trace(f[0]);
 							default:
 						}
 					default:
@@ -110,7 +136,7 @@ class Parser {
 					module: type.getClass().module,
 					// method: getMethod(f.meta),
 					method: '',
-					prefix: f.name, // empty string or values in @:get
+					prefix: metaValue == '' ? '/' + f.name : metaValue, // empty string or values in @:get
 					functionName: f.name,
 					nodes: []
 				});
@@ -126,9 +152,12 @@ class Parser {
 		}
 		trace("----------------------");
 
-		trace(root);
+		Sys.println(
+			haxe.Json.stringify(root, null ,' ')
+		);
 
-		return macro $v{root};
+		// return macro $v{root};
+		return macro {};
 	}
 }
 
