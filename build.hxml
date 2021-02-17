@@ -1,7 +1,9 @@
 -cp src
--D analyzer-optimize
 -main Server
 -js dist/server.js
+-dce full
 
 -lib hxnodejs
 -lib tink_web
+
+-D analyzer-optimize
