@@ -10,7 +10,7 @@ class Public implements api.Public {
         return "This is test route";
     }
 
-    public function named(name = "Tom") {
-        return "This is named route visit by " + name;
+    public function api() {
+        return new api.impl.Api();
     }
 }
