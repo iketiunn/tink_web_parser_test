@@ -4,8 +4,6 @@ import tink.http.containers.*;
 import tink.http.Response;
 import tink.web.routing.*;
 
-// import pet.api.impl.Public;
-
 class Server {
     static function main() {
         var container = new NodeContainer(8080); 
@@ -17,12 +15,3 @@ class Server {
         });
     }
 }
-
-// class Root {
-//     public function new() {}
-    
-//     @:get('/')
-//     @:get('/$name')
-//     public function hello(name = 'World')
-//         return 'Hello, $name!';
-// }

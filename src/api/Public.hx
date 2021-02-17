@@ -1,5 +1,7 @@
 package api;
 
 interface Public {
-    @:get("/test") function test(): String;
+    @:get("/") public function index(): String;
+    @:get("/test") public function test(): String;
+    @:get("/$name") public function named(name: String = "Tom"): String;
 }
