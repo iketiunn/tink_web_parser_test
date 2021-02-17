@@ -132,6 +132,7 @@ interface Api {
     /**
     * Logs user into the system
     * 
+    * TODO: Also return custom headers
     **/
     @:get('/user/login')
     function loginUser(query: { username:String,password:String }):String;
