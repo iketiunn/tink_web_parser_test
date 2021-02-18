@@ -14,3 +14,4 @@ $ haxe parser.hxml src/api/Public > export.json
 - [] Handle tink_multipart
 - [] Handle When multiple tink metas apply on one method
 - [] parse non-MAP body
+- [] Reference Non-primitive type 

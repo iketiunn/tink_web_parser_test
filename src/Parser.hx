@@ -64,7 +64,8 @@ class Parser {
 
 		return false;
 	}
-	
+
+	/** Main logic goes here **/
 	public static function _parse(cl:haxe.macro.Type.ClassType): Node {
 		var fields = cl.fields.get();
 		var root:Node = {
@@ -93,13 +94,53 @@ class Parser {
 					// Fot getting args and returns
 					case TFun(args, ret):
 						// trace("args:",args);
-						if (args.length > 0) {
-							// Push paramters
-						}
+						// if (args.length > 0) {
+						// 	// Push paramters
+						// }
+						// TODO, decompose complex type into base model?
 						switch (ret) {
-							case TInst(t, _):
-								// TODO If not primitive, parse it to typeDef
-								n.responses = t.toString();
+							case TType(t, params):
+								n.responses = [
+									{
+										statusCode: 200,
+										description: '',
+										schema: {
+											type: t.toString()
+										}
+									}
+								];
+							case TInst(t, params):
+								var data: Data = {
+									type: 'None'
+								};
+								// Handle different type, some of them might have params
+								if (t.get().name == 'Array') {
+									data.type = 'array';
+									// Assume that array only have one type now, discourage multiple types in one array 
+									switch (params[0]) {
+										case TType(t, params):
+											data.items = {
+												// May Recursive, parse only one level now
+												type: t.get().name.toLowerCase()
+											};
+										default:
+									}
+								} else if (t.get().name == 'String') {
+									data.type = 'string';
+								} else {
+									// Not handling this type yet, throw
+									trace(f);
+									throw 'Invalid type:' + t.get().name;
+								}
+								// trace(ret);
+								// trace(t, params[0]);
+								n.responses = [
+									{
+										statusCode: 200,
+										description: '',
+										schema: data
+									}
+								];
 							default:
 						}
 					default:
@@ -124,7 +165,6 @@ class Parser {
 				}
 				root.nodes.push({
 					module: cl.module,
-					method: '', // Because it's a sub
 					prefix: metaValue == '' ? '/' + f.name : metaValue, // empty string or values in @:get
 					functionName: f.name,
 					nodes: nodes
@@ -157,10 +197,37 @@ typedef Node = {
 	var module:String;
 	var ?method:String;
 	var prefix:String;
-	var ?parameters:Dynamic;
-	var ?responses:Dynamic; // Status code?
+	var ?parameters:Array<Data>;
+	var ?responses:Array<Response>; // By default, it treat as 200
 	var ?functionName:String;
 	var nodes:Array<Node>;
+}
+
+
+// Union type example
+// Data String
+// typedef DataString = {
+// 	var type: string;
+// }
+// Data Object
+// typedef DataObject = {
+// 	var type = "object";
+// 	var properties = Data;
+// }
+// // ...
+
+typedef Data = {
+	var type: String;
+	var ?description: String;
+	var ?format: String;
+	var ?properties: Data; // For object or nest object
+	var ?items: Data; // For array
+}
+
+typedef Response = {
+	var statusCode: Int;
+	var description: String;
+	var schema: Data;
 }
 
 interface Swagger {}

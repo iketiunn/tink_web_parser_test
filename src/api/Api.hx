@@ -39,131 +39,131 @@ interface Api {
     function findPetsByStatus(query:{ status:Array<String> }):Array<Pet>;
     // function findPetsByStatus(status:Array<String>):Array<Pet>;
 
-    // /**
-    // * Finds Pets by tags
-    // * Muliple tags can be provided with comma separated strings. Use         tag1, tag2, tag3 for testing.
-    // **/
-    // @:get('/pet/findByTags')
-    // function findPetsByTags(query: { tags:Array<String> }):Array<Pet>;
-    // // function findPetsByTags(tags:Array<String>):Array<Pet>;
+    /**
+    * Finds Pets by tags
+    * Muliple tags can be provided with comma separated strings. Use         tag1, tag2, tag3 for testing.
+    **/
+    @:get('/pet/findByTags')
+    function findPetsByTags(query: { tags:Array<String> }):Array<Pet>;
+    // function findPetsByTags(tags:Array<String>):Array<Pet>;
 
-    // /**
-    // * Find pet by ID
-    // * Returns a single pet
-    // **/
-    // @:get('/pet/$petId')
-    // function getPetById(petId:Int):Pet;
+    /**
+    * Find pet by ID
+    * Returns a single pet
+    **/
+    @:get('/pet/$petId')
+    function getPetById(petId:Int):Pet;
 
-    // /**
-    // * Updates a pet in the store with form data
-    // * 
-    // **/
-    // @:post('/pet/$petId')
-    // function updatePetWithForm(petId:Int,query: {name:String,status:String}):EmptyResponse;
-    // // function updatePetWithForm(petId:Int,name:String,status:String):EmptyResponse;
+    /**
+    * Updates a pet in the store with form data
+    * 
+    **/
+    @:post('/pet/$petId')
+    function updatePetWithForm(petId:Int,query: {name:String,status:String}):EmptyResponse;
+    // function updatePetWithForm(petId:Int,name:String,status:String):EmptyResponse;
 
-    // /**
-    // * Deletes a pet
-    // * 
-    // **/
-    // @:delete('/pet/$petId')
-    // function deletePet(petId:Int, header: { api_key:String }):EmptyResponse;
-    // // function deletePet(api_key:String,petId:Int):EmptyResponse;
+    /**
+    * Deletes a pet
+    * 
+    **/
+    @:delete('/pet/$petId')
+    function deletePet(petId:Int, header: { api_key:String }):EmptyResponse;
+    // function deletePet(api_key:String,petId:Int):EmptyResponse;
 
-    // /**
-    // * uploads an image
-    // * 
-    // * FIXME: Let's skip tink_multipart for now..
-    // **/
-    // // @:post('/pet/$petId/uploadImage')
-    // // function uploadFile(petId:Int,additionalMetadata:String,file:String):ApiResponse;
+    /**
+    * uploads an image
+    * 
+    * FIXME: Let's skip tink_multipart for now..
+    **/
+    // @:post('/pet/$petId/uploadImage')
+    // function uploadFile(petId:Int,additionalMetadata:String,file:String):ApiResponse;
 
-    // /**
-    // * Returns pet inventories by status
-    // * Returns a map of status codes to quantities
-    // **/
-    // @:get('/store/inventory')
-    // function getInventory():InventoryResponse;
+    /**
+    * Returns pet inventories by status
+    * Returns a map of status codes to quantities
+    **/
+    @:get('/store/inventory')
+    function getInventory():InventoryResponse;
 
-    // /**
-    // * Place an order for a pet
-    // * 
-    // **/
-    // @:post('/store/order')
-    // function placeOrder(body:Order):Order;
+    /**
+    * Place an order for a pet
+    * 
+    **/
+    @:post('/store/order')
+    function placeOrder(body:Order):Order;
 
-    // /**
-    // * Find purchase order by ID
-    // * For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions
-    // **/
-    // @:get('/store/order/$orderId')
-    // function getOrderById(orderId:Int):Order;
+    /**
+    * Find purchase order by ID
+    * For valid response try integer IDs with value >= 1 and <= 10.         Other values will generated exceptions
+    **/
+    @:get('/store/order/$orderId')
+    function getOrderById(orderId:Int):Order;
 
-    // /**
-    // * Delete purchase order by ID
-    // * For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors
-    // **/
-    // @:delete('/store/order/$orderId')
-    // function deleteOrder(orderId:Int):EmptyResponse;
+    /**
+    * Delete purchase order by ID
+    * For valid response try integer IDs with positive integer value.         Negative or non-integer values will generate API errors
+    **/
+    @:delete('/store/order/$orderId')
+    function deleteOrder(orderId:Int):EmptyResponse;
 
-    // /**
-    // * Create user
-    // * This can only be done by the logged in user.
-    // **/
-    // @:post('/user')
-    // function createUser(body:User):EmptyResponse;
+    /**
+    * Create user
+    * This can only be done by the logged in user.
+    **/
+    @:post('/user')
+    function createUser(body:User):EmptyResponse;
 
-    // /**
-    // * Creates list of users with given input array
-    // * 
-    // * FIXME: body should be just array without a key, that will be a body issue
-    // **/
-    // // @:post('/user/createWithArray')
-    // // function createUsersWithArrayInput(body: Array<User>):EmptyResponse;
+    /**
+    * Creates list of users with given input array
+    * 
+    * FIXME: body should be just array without a key, that will be a body issue
+    **/
+    // @:post('/user/createWithArray')
+    // function createUsersWithArrayInput(body: Array<User>):EmptyResponse;
 
-    // /**
-    // * Creates list of users with given input array
-    // * 
-    // * FIXME: body should be just array without a key, that will be a body issue
-    // **/
-    // // @:post('/user/createWithList')
-    // // function createUsersWithListInput(body:Array<User>):EmptyResponse;
+    /**
+    * Creates list of users with given input array
+    * 
+    * FIXME: body should be just array without a key, that will be a body issue
+    **/
+    // @:post('/user/createWithList')
+    // function createUsersWithListInput(body:Array<User>):EmptyResponse;
 
-    // /**
-    // * Logs user into the system
-    // * 
-    // * TODO: Also return custom headers
-    // **/
-    // @:get('/user/login')
-    // function loginUser(query: { username:String,password:String }):String;
+    /**
+    * Logs user into the system
+    * 
+    * TODO: Also return custom headers
+    **/
+    @:get('/user/login')
+    function loginUser(query: { username:String,password:String }):String;
 
-    // /**
-    // * Logs out current logged in user session
-    // * 
-    // **/
-    // @:get('/user/logout')
-    // function logoutUser():EmptyResponse;
+    /**
+    * Logs out current logged in user session
+    * 
+    **/
+    @:get('/user/logout')
+    function logoutUser():EmptyResponse;
 
-    // /**
-    // * Get user by user name
-    // * 
-    // **/
-    // @:get('/user/$username')
-    // function getUserByName(username:String):User;
+    /**
+    * Get user by user name
+    * 
+    **/
+    @:get('/user/$username')
+    function getUserByName(username:String):User;
 
-    // /**
-    // * Updated user
-    // * This can only be done by the logged in user.
-    // **/
-    // @:put('/user/$username')
-    // function updateUser(username:String,body:User):EmptyResponse;
+    /**
+    * Updated user
+    * This can only be done by the logged in user.
+    **/
+    @:put('/user/$username')
+    function updateUser(username:String,body:User):EmptyResponse;
 
-    // /**
-    // * Delete user
-    // * This can only be done by the logged in user.
-    // **/
-    // @:delete('/user/$username')
-    // function deleteUser(username:String):EmptyResponse;
+    /**
+    * Delete user
+    * This can only be done by the logged in user.
+    **/
+    @:delete('/user/$username')
+    function deleteUser(username:String):EmptyResponse;
 }
 
 typedef EmptyResponse = Null<String>;
