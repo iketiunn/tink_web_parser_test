@@ -1,3 +1,5 @@
+package;
+
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.ds.Option;

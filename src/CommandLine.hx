@@ -2,6 +2,9 @@ package;
 
 import tink.cli.*;
 import tink.Cli;
+import sys.io.File;
+
+import Parser;
 
 class CommandLine {
     static function main() {
@@ -16,17 +19,18 @@ class Cmd {
 	
 	@:defaultCommand
 	public function run(rest:Rest<String>) {
-		var rootHx = rest[0];
-		if (rootHx == null)  {
+		var rootPath = rest[0];
+		if (rootPath == null)  {
 			// Or print help
 			Sys.println('Please input a file path!');
 		} else {
 			// Path validation
+			var root = File.getContent(rootPath);
 
 			// Call Parse
 
 			// Print the result
-			Sys.println('rootHx: $rootHx');
+			Sys.println('rootPath: $rootPath');
 		}
 	}
 }
