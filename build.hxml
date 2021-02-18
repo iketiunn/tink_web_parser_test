@@ -1,9 +1,10 @@
 -cp src
--main Server
--js dist/server.js
+-main CommandLine
+-js dist/cli.js
 -dce full
 
 -lib hxnodejs
 -lib tink_web
+-lib tink_cli
 
 -D analyzer-optimize

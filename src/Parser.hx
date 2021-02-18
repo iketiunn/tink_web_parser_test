@@ -1,9 +1,9 @@
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.ds.Option;
 using haxe.macro.Tools;
 
 import tink.http.Method;
-import haxe.ds.Option;
 
 class Parser {
 	public static var metas = {
@@ -72,7 +72,7 @@ class Parser {
 			module: cl.module,
 			// method: null,
 			prefix: '/',
-			// paramters: null,
+			// parameters: [],
 			// responses: null,
 			// functionName: '',
 			nodes: []
@@ -87,25 +87,68 @@ class Parser {
 					module: cl.module,
 					method: getMethod(f.meta),
 					prefix: metaValue, // empty str ing or values in @:get
+					parameters: [],
 					functionName: f.name,
-					nodes: []
 				};
 				switch (f.type) {
-					// Fot getting args and returns
 					case TFun(args, ret):
-						// trace("args:",args);
-						// if (args.length > 0) {
-						// 	// Push paramters
-						// }
-						// TODO, decompose complex type into base model?
+						/** Parse parameters **/
+						for (a in args) {
+							switch (a.t) {
+								case TType(t, _params):
+									n.parameters.push({
+										type: 'ref',
+										name: a.name,
+										ref:t.get().name
+									});
+								case TAbstract(t, _params):
+									n.parameters.push({
+										type: t.get().name.toLowerCase(),
+										name: a.name,
+									});
+								case TAnonymous(aa):
+									// Could be trans to json stringify
+									var object: Data = {
+										type: 'object',
+										name: a.name,
+										properties: []
+									};
+									for (ff in aa.get().fields) {
+										// trace(field.name);
+										// trace(ff.name);
+										switch (ff.type) {
+											case TInst(tt, _params):
+												object.properties.push({
+													type: tt.get().name.toLowerCase(),
+													name: ff.name
+												});
+											default:
+										}
+									}
+									n.parameters.push(object);
+								case TInst(t, params): {
+									n.parameters.push({
+										type: t.get().name.toLowerCase(),
+										name: a.name
+									});
+								}
+								default:
+									trace(a);
+									n.parameters.push({
+										type: "UNKNOWN"
+									});
+							}
+						}
+						/** Parse Responses **/
 						switch (ret) {
-							case TType(t, params):
+							case TType(t, _params):
 								n.responses = [
 									{
 										statusCode: 200,
 										description: '',
 										schema: {
-											type: t.toString()
+											type: "ref",
+											ref: t.toString()
 										}
 									}
 								];
@@ -120,7 +163,6 @@ class Parser {
 									switch (params[0]) {
 										case TType(t, params):
 											data.items = {
-												// May Recursive, parse only one level now
 												type: t.get().name.toLowerCase()
 											};
 										default:
@@ -132,8 +174,6 @@ class Parser {
 									trace(f);
 									throw 'Invalid type:' + t.get().name;
 								}
-								// trace(ret);
-								// trace(t, params[0]);
 								n.responses = [
 									{
 										statusCode: 200,
@@ -152,9 +192,6 @@ class Parser {
 				// Get the nodes of sub
 				switch (f.type) {
 					case TFun(args, ret): // Just need to handle function
-						// trace("name:",f.name);
-						// trace("args:",args);
-						// trace("return:",ret);
 						switch (ret) {
 							case TInst(t, params):
 								// Going deep
@@ -176,18 +213,17 @@ class Parser {
 	}
 
 	/** Main */
-	public static macro function parse(typePath:Expr):Expr {
-		// Make sure you put the root calss of routes
-		var type = Context.getType(typePath.toString()); // Why this setp, take from exmaple
+	public static macro function parse(typePath:Expr):haxe.macro.Expr.ExprOf<String> {
+		// Make sure you put the root class of routes
+		var type = Context.getType(typePath.toString()); // TODO: Why this step, take from example
 		var cl = type.follow().getClass();
 
 		// Should be only one level
 		var root = _parse(cl);
-		trace("----------------------");
-		Sys.println(
-			haxe.Json.stringify(root, null ,' ')
-		);
-		trace("----------------------");
+		var ret = haxe.Json.stringify(root, null ,' ');
+		// Sys.println(
+		// 	haxe.Json.stringify(root, null ,' ')
+		// );
 
 		return macro {};
 	}
@@ -200,7 +236,7 @@ typedef Node = {
 	var ?parameters:Array<Data>;
 	var ?responses:Array<Response>; // By default, it treat as 200
 	var ?functionName:String;
-	var nodes:Array<Node>;
+	var ?nodes:Array<Node>;
 }
 
 
@@ -218,10 +254,12 @@ typedef Node = {
 
 typedef Data = {
 	var type: String;
+	var ?name: String; // When it's parameters
 	var ?description: String;
 	var ?format: String;
-	var ?properties: Data; // For object or nest object
+	var ?properties: Array<Data>; // For object or nest object
 	var ?items: Data; // For array
+	var ?ref: String; // For reference
 }
 
 typedef Response = {

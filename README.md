@@ -7,11 +7,11 @@ Parse and export router information in order to:
 # Example
 ```
 # input the root route as argument
-$ haxe parser.hxml src/api/Public > export.json
+$ haxe parser.hxml src/api/Public > output.json
 ```
 
 # TODO
 - [] Handle tink_multipart
 - [] Handle When multiple tink metas apply on one method
 - [] parse non-MAP body
-- [] Reference Non-primitive type 
+- [] Reference to Non-primitive type 

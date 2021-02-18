@@ -1,6 +1,0 @@
--cp src
--D analyzer-optimize
--main Test
---js dist/parse.js
-
--lib tink_web
