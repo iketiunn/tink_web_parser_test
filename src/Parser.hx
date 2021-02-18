@@ -1,7 +1,6 @@
 import haxe.macro.Context;
 import haxe.macro.Expr;
 using haxe.macro.Tools;
-import haxe.rtti.Meta;
 
 import tink.http.Method;
 import haxe.ds.Option;
@@ -65,15 +64,11 @@ class Parser {
 
 		return false;
 	}
-
-	/** Main */
-	public static macro function parse(typePath:Expr):Expr {
-		// Going to parse the hardcoded `dasloop.api.v2.public`
-		// Make sure you put the root calss of routes
-		var type = Context.getType(typePath.toString());
-		var fields = type.follow().getClass().fields.get();
+	
+	public static function _parse(cl:haxe.macro.Type.ClassType): Node {
+		var fields = cl.fields.get();
 		var root:Node = {
-			module: type.getClass().module,
+			module: cl.module,
 			// method: null,
 			prefix: '/',
 			// paramters: null,
@@ -81,16 +76,14 @@ class Parser {
 			// functionName: '',
 			nodes: []
 		};
-		trace("----------------------");
 		for (f in fields) {
 			// Get Method meta = not :none
 			var methodMetas = getMethodMeta(f.meta);
 			// Only get the first params in the first meta as prefix value
 			var metaValue =  methodMetas[0].params.length > 0 ? methodMetas[0].params[0].getValue() : '';
-			trace("Try to get meta prams: ", metaValue);
 			if (isEndpoint(f.meta)) {
 				var n: Node = {
-					module: type.getClass().module,
+					module: cl.module,
 					method: getMethod(f.meta),
 					prefix: metaValue, // empty str ing or values in @:get
 					functionName: f.name,
@@ -113,50 +106,49 @@ class Parser {
 				}
 				root.nodes.push(n);
 			}
-			// Sub, yo
+			var nodes: Array<Node> = [];
 			if (isPrefix(f.meta)) {
 				// Get the nodes of sub
 				switch (f.type) {
-					// Fot getting args and returns
-					case TFun(args, ret):
+					case TFun(args, ret): // Just need to handle function
 						// trace("name:",f.name);
 						// trace("args:",args);
 						// trace("return:",ret);
 						switch (ret) {
 							case TInst(t, params):
 								// Going deep
-								var tt = Context.getType(t.get().module + "." + t.get().name);
-								var f = tt.follow().getClass().fields.get();
-								// trace(f[0]);
+								nodes = _parse(t.get()).nodes;
 							default:
 						}
 					default:
 				}
 				root.nodes.push({
-					module: type.getClass().module,
-					// method: getMethod(f.meta),
-					method: '',
+					module: cl.module,
+					method: '', // Because it's a sub
 					prefix: metaValue == '' ? '/' + f.name : metaValue, // empty string or values in @:get
 					functionName: f.name,
-					nodes: []
+					nodes: nodes
 				});
-				// pass the return type to parse
-				// trace({
-				// module: type.getClass().module,
-				// 	prefix: "/" + f.name, // Will be :sub() param or the field name
-				// 	leafs: f.expr(),
-				// 	functionName: f.name
-				// });
 			}
-			// etc metas, may extend it, pring waring only now
 		}
-		trace("----------------------");
 
+		return root;
+	}
+
+	/** Main */
+	public static macro function parse(typePath:Expr):Expr {
+		// Make sure you put the root calss of routes
+		var type = Context.getType(typePath.toString()); // Why this setp, take from exmaple
+		var cl = type.follow().getClass();
+
+		// Should be only one level
+		var root = _parse(cl);
+		trace("----------------------");
 		Sys.println(
 			haxe.Json.stringify(root, null ,' ')
 		);
+		trace("----------------------");
 
-		// return macro $v{root};
 		return macro {};
 	}
 }
@@ -169,7 +161,6 @@ typedef Node = {
 	var ?responses:Dynamic; // Status code?
 	var ?functionName:String;
 	var nodes:Array<Node>;
-	// produce
 }
 
 interface Swagger {}

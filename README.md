@@ -1,9 +1,16 @@
-# Haxe project
+# 📑 tink web router parser
 
-This is an example Haxe project scaffolded by Visual Studio Code.
+Parse and export router information in order to:
+1. transform to swagger specification
+2. deploy a swagger document site
 
-Without further changes the structure is following:
+# Example
+```
+# input the root route as argument
+$ haxe parser.hxml src/api/Public > export.json
+```
 
- * `src/Main.hx`: Entry point Haxe source file
- * `build.hxml`: Haxe command line file used to build the project
- * `README.md`: This file
+# TODO
+- [] Handle tink_multipart
+- [] Handle When multiple tink metas apply on one method
+- [] parse non-MAP body
