@@ -1,0 +1,158 @@
+{
+ "defs": [
+  {
+   "name": "Pet",
+   "properties": [
+    {
+     "name": "category",
+     "description": "TODO",
+     "type": "unknown"
+    },
+    {
+     "name": "name",
+     "type": "String"
+    },
+    {
+     "name": "photoUrls",
+     "items": {
+      "type": "string"
+     },
+     "type": "array"
+    },
+    {
+     "name": "status",
+     "required": false,
+     "type": "string"
+    },
+    {
+     "name": "tags",
+     "required": false,
+     "items": {
+      "type": "Tag"
+     },
+     "type": "array"
+    }
+   ],
+   "type": "object"
+  }
+ ],
+ "routes": {
+  "prefix": "/",
+  "module": "server.api.Public",
+  "nodes": [
+   {
+    "prefix": "/",
+    "module": "server.api.Public",
+    "parameters": [],
+    "method": ":get",
+    "functionName": "index",
+    "responses": [
+     {
+      "schema": {
+       "type": "string"
+      },
+      "description": "",
+      "statusCode": 200
+     }
+    ]
+   },
+   {
+    "prefix": "/test",
+    "module": "server.api.Public",
+    "parameters": [],
+    "method": ":get",
+    "functionName": "test",
+    "responses": [
+     {
+      "schema": {
+       "type": "string"
+      },
+      "description": "",
+      "statusCode": 200
+     }
+    ]
+   },
+   {
+    "prefix": "/test/$id",
+    "module": "server.api.Public",
+    "parameters": [
+     {
+      "name": "id",
+      "type": "string"
+     }
+    ],
+    "method": ":get",
+    "functionName": "testId",
+    "responses": [
+     {
+      "schema": {
+       "type": "string"
+      },
+      "description": "",
+      "statusCode": 200
+     }
+    ]
+   },
+   {
+    "prefix": "/api",
+    "module": "server.api.Public",
+    "nodes": [
+     {
+      "prefix": "/pet",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "body",
+        "ref": "Pet",
+        "type": "ref"
+       }
+      ],
+      "method": ":put",
+      "functionName": "updatePet",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/pet/findByStatus",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "query",
+        "properties": [
+         {
+          "name": "status",
+          "type": "array"
+         }
+        ],
+        "type": "object"
+       }
+      ],
+      "method": ":get",
+      "functionName": "findPetsByStatus",
+      "responses": [
+       {
+        "schema": {
+         "items": {
+          "type": "pet"
+         },
+         "type": "array"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     }
+    ],
+    "functionName": "api"
+   }
+  ]
+ }
+}

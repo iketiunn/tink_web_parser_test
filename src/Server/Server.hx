@@ -1,4 +1,4 @@
-package;
+package server;
 
 import tink.http.containers.*;
 import tink.http.Response;

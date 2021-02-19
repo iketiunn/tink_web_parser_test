@@ -1,9 +1,7 @@
-package;
-
+// package;
+import sys.io.File;
 import tink.cli.*;
 import tink.Cli;
-import sys.io.File;
-
 import Parser;
 
 class CommandLine {
@@ -24,13 +22,23 @@ class Cmd {
 			// Or print help
 			Sys.println('Please input a file path!');
 		} else {
-			// Path validation
-			var root = File.getContent(rootPath);
+			// Path validation to get the class path
+			// Or just pass class path
+
+			// var root = File.getContent(rootPath);
+			// Sys.println(root);
+			// var t = Type.resolveClass('server.api.Public');
+			// trace(
+			// 	t
+			// );
+			
 
 			// Call Parse
+			Parser.parse('rootPath');
+			// Parser.parse('server.api.Public');
 
 			// Print the result
-			Sys.println('rootPath: $rootPath');
+			// Sys.println('rootPath: $rootPath');
 		}
 	}
 }

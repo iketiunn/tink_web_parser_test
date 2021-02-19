@@ -1,6 +1,6 @@
-package api.impl;
+package server.api.impl;
 
-class Api implements api.Api {
+class Api implements server.api.Api {
     public function new () {}
 
     public function addPet(body) {
