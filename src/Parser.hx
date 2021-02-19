@@ -73,88 +73,151 @@ class Parser {
 	static var defs: Array<Def> = [];
 
 	// TODO, how far should a parser go deep into?
-	static function parseDefs(t: haxe.macro.Type.Ref<haxe.macro.Type.DefType>) {
+	static function parseAbstract(name: String, t: haxe.macro.Type.Ref<haxe.macro.Type.AbstractType>, params:Array<haxe.macro.Type>) {
 		var def: Data = {
-			name: t.get().name,
-			type: 'object',
-			properties: []
+			name: name,
+			type: 'unknown'
+		};
+		var typeName = t.get().name;
+		if (typeName == 'Null') {
+			// Parse params
+			switch (params[0]) {
+				case TInst(t, _params):
+					// TODO: Maybe array, maybe other	
+					// if (t.get().name == 'Array') {
+					// 	var p: Data = {
+					// 		type: 'array',
+					// 		name: name,
+					// 		required: false
+					// 	}
+					// 	// Parse params
+					// 	switch (params[0]) {
+					// 		case TInst(_t, pp):
+					// 			switch (pp[0]) {
+					// 				case TType(t, params):
+					// 					p.items = {
+					// 						type: t.toString()
+					// 					};
+					// 				default:
+					// 			}
+					// 			// May nested!
+					// 		default:
+					// 	}
+					// 	// properties.push(p);
+
+					// 	trace(p);
+					// } else {
+					// 	return {
+					// 		type: t.get().name.toLowerCase(),
+					// 		name: name,
+					// 		required: false
+					// 	};
+					// }
+					
+					// TODO: handle the different types
+
+					def.type = t.toString();
+					def.required = false; 
+				default:
+			}
 		}
-		switch (t.get().type) {
-			case TAnonymous(a):
-				for (f in a.get().fields) {
-					// trace(t.get().name, f.name, f.type);
-					switch (f.type) {
-						case TLazy(_f):
-							// It's a optional typedef, but showed as TLazy
-							// Without optional, it will be TType(...)
-							def.properties.push({
-								type: 'unknown',
-								name: f.name,
-								description: 'TODO'
-							});
-						case TAbstract(t, params):
-							// Might a Null
-							var typeName = t.get().name;
-							if (typeName == 'Null') {
-								// Parse params
-								switch (params[0]) {
-									case TInst(t, _params):
-										// Maybe array, maybe other	
-										if (t.get().name == 'Array') {
-											var p: Data = {
-												type: 'array',
-												name: f.name,
-												required: false
-											}
-											// Parse params
-											switch (params[0]) {
-												case TInst(_t, pp):
-													switch (pp[0]) {
-														case TType(t, params):
-															p.items = {
-																type: t.get().name
-															};
-														default:
-													}
-													// May nested!
+
+		return def;
+	}
+	static function parseAnonymousAbstract(a:haxe.macro.Type.Ref<haxe.macro.Type.AnonType>) {
+		var properties:Array<Data> = [];
+		for (f in a.get().fields) {
+			// trace(t.get().name, f.name, f.type);
+			switch (f.type) {
+				case TLazy(_f):
+					// It's a optional typedef, but showed as TLazy
+					// Without optional, it will be TType(...)
+					properties.push({
+						type: 'unknown',
+						name: f.name,
+						description: 'TODO'
+					});
+				case TAbstract(t, params):
+					// Might a Null
+					var typeName = t.get().name;
+					if (typeName == 'Null') {
+						// Parse params
+						switch (params[0]) {
+							case TInst(t, _params):
+								// Maybe array, maybe other	
+								if (t.get().name == 'Array') {
+									var p: Data = {
+										type: 'array',
+										name: f.name,
+										required: false
+									}
+									// Parse params
+									switch (params[0]) {
+										case TInst(_t, pp):
+											switch (pp[0]) {
+												case TType(t, params):
+													p.items = {
+														type: t.toString()
+													};
 												default:
 											}
-											def.properties.push(p);
-										} else {
-											def.properties.push({
-												type: t.get().name.toLowerCase(),
-												name: f.name,
-												required: false
-											});
-										}
-									default:
+											// May nested!
+										default:
+									}
+									properties.push(p);
+								} else {
+									properties.push({
+										type: t.toString(),
+										name: f.name,
+										required: false
+									});
 								}
-							}
-						case TInst(t, params):
-							var typeName = t.get().name;
-							if (typeName == 'Array') {
-								var p: Data = {
-									type: 'array',
-									name: f.name,
-								}
-								// Parse params
-								switch (params[0]) {
-									case TInst(t, _params):
-										p.items = {
-											type: t.get().name.toLowerCase()
-										}
-									default:
-								}
-								def.properties.push(p);
-							} else if (typeName == 'String') {
-								def.properties.push({
-									type: typeName,
-									name: f.name
-								});
-							}
-						default:
+							default:
+						}
 					}
-				}
+				case TInst(t, params):
+					var typeName = t.get().name;
+					if (typeName == 'Array') {
+						var p: Data = {
+							type: 'array',
+							name: f.name,
+						}
+						// Parse params
+						switch (params[0]) {
+							case TInst(t, _params):
+								p.items = {
+									type: t.toString()
+								}
+							default:
+						}
+						properties.push(p);
+					} else if (typeName == 'String') {
+						properties.push({
+							type: typeName,
+							name: f.name
+						});
+					}
+				default:
+			}
+		}
+
+		return properties;
+	}
+
+	static function parseDefs(t: haxe.macro.Type.Ref<haxe.macro.Type.DefType>) {
+		var def: Data = {
+			name: t.toString(),
+			type: 'object',
+			properties: []
+		};
+		// trace(t.get().name, t.get().type);
+		switch (t.get().type) {
+			/** Is a typedef type **/
+			case TAbstract(tt, params):
+				def = parseAbstract(t.toString(), tt, params);
+			/** Is a typedef structure **/
+			case TAnonymous(a):
+				def.properties = parseAnonymousAbstract(a);
 			default:
 		}
 
@@ -196,9 +259,9 @@ class Parser {
 									n.parameters.push({
 										type: 'ref',
 										name: a.name,
-										ref: t.get().name
+										ref: t.toString()
 									});
-									// TODO: Push a def
+									/** Parse Def **/
 									parseDefs(t);
 								case TAbstract(t, _params):
 									n.parameters.push({
@@ -251,7 +314,8 @@ class Parser {
 										}
 									}
 								];
-								// TODO: Push a def
+								/** Parse Def **/
+								parseDefs(t);
 							case TInst(t, params):
 								var data:Data = {
 									type: 'None'

@@ -1,7 +1,7 @@
 {
  "defs": [
   {
-   "name": "Pet",
+   "name": "server.api.Pet",
    "properties": [
     {
      "name": "category",
@@ -15,25 +15,30 @@
     {
      "name": "photoUrls",
      "items": {
-      "type": "string"
+      "type": "String"
      },
      "type": "array"
     },
     {
      "name": "status",
      "required": false,
-     "type": "string"
+     "type": "String"
     },
     {
      "name": "tags",
      "required": false,
      "items": {
-      "type": "Tag"
+      "type": "server.api.Tag"
      },
      "type": "array"
     }
    ],
    "type": "object"
+  },
+  {
+   "name": "server.api.EmptyResponse",
+   "required": false,
+   "type": "String"
   }
  ],
  "routes": {
@@ -103,7 +108,7 @@
       "parameters": [
        {
         "name": "body",
-        "ref": "Pet",
+        "ref": "server.api.Pet",
         "type": "ref"
        }
       ],
