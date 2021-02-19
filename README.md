@@ -1,8 +1,9 @@
-# 📑 tink web router parser
+# 📑 tink web router parser (under developing)
 
-Parse and export router information in order to:
+This is a experimental project to parse and export tink web router information in order to:
 1. transform to swagger specification
-2. deploy a swagger document site
+2. deploy a swagger document ui
+3. generate client sdk
 
 # Example
 ```
@@ -10,38 +11,21 @@ Parse and export router information in order to:
 $ haxe parser.hxml src/Server/api/Public > output.json
 ```
 
-# TODO
-- [ ] Handle tink_multipart
-- [ ] Handle When multiple tink metas apply on one method
-- [ ] parse non-MAP body
-- [ ] Reference to Non-primitive type 
-- [ ] A cli tool or a build macro?
-
-
-
 # NOTE
-
-A command line tool (In Build macro time? we don't need js. since it's tool for haxe)
-|> Load file
-|> Parse to context (Using rtti?)
-|> Remaining parse logic
-|> return parsed json string
-
-
-- Can't mix runtime input with compile time
-- I don't want pass macro flag/params when I use this tool (or this is a good idea)
-- Find a way using runtime pass first?
-
-
-
-# Swagger example
 ```
-{
-    path: {
-        ...
-    },
-    definitions: {
-        ...
-    }
-}
+Start
+|> Using marco to get Context (Because maybe impossible in rtti? was trying to using cli approach)
+|> Collect Haxe type information from web routes root <--- This is the current state
+    - Try to coverage 80% scenario first
+        - ignore to complex nest type
+        - ignore multipart
+        - ignore body without a json format
+        - ignore object type witch is dynamic key
+    - Does the syntax idiom match to Haxe?
+    - Dose the approach correct?
+    - Nest type traverse is verbose, any better way than DRY?
+    - Optional non-primitive type may refer to `TLazy`, could we reveal it?
+    - Is there better union trick to prevent lots optional var in typedef?
+|> Transform to swagger json format
+|> Integration with swagger UI | Generate client sdk from swagger json
 ```

@@ -6,7 +6,7 @@
     {
      "name": "category",
      "description": "TODO",
-     "type": "unknown"
+     "type": "Dynamic"
     },
     {
      "name": "name",
@@ -17,7 +17,7 @@
      "items": {
       "type": "String"
      },
-     "type": "array"
+     "type": "Array"
     },
     {
      "name": "status",
@@ -30,18 +30,70 @@
      "items": {
       "type": "server.api.Tag"
      },
-     "type": "array"
+     "type": "Array"
     }
    ],
-   "type": "object"
+   "type": "Object"
   },
   {
    "name": "server.api.EmptyResponse",
    "required": false,
    "type": "String"
+  },
+  {
+   "name": "server.api.Order",
+   "properties": [
+    {
+     "name": "shipDate",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "status",
+     "required": false,
+     "type": "String"
+    }
+   ],
+   "type": "Object"
+  },
+  {
+   "name": "server.api.User",
+   "properties": [
+    {
+     "name": "email",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "firstName",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "lastName",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "password",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "phone",
+     "required": false,
+     "type": "String"
+    },
+    {
+     "name": "username",
+     "required": false,
+     "type": "String"
+    }
+   ],
+   "type": "Object"
   }
  ],
- "routes": {
+ "route": {
   "prefix": "/",
   "module": "server.api.Public",
   "nodes": [
@@ -83,7 +135,8 @@
     "parameters": [
      {
       "name": "id",
-      "type": "string"
+      "inType": "path",
+      "type": "String"
      }
     ],
     "method": ":get",
@@ -107,7 +160,7 @@
       "module": "server.api.Api",
       "parameters": [
        {
-        "name": "body",
+        "inType": "body",
         "ref": "server.api.Pet",
         "type": "ref"
        }
@@ -130,14 +183,17 @@
       "module": "server.api.Api",
       "parameters": [
        {
-        "name": "query",
+        "inType": "query",
         "properties": [
          {
-          "name": "status",
-          "type": "array"
+          "items": {
+           "name": "status",
+           "type": "String"
+          },
+          "type": "Array"
          }
         ],
-        "type": "object"
+        "type": "Object"
        }
       ],
       "method": ":get",
@@ -146,9 +202,349 @@
        {
         "schema": {
          "items": {
-          "type": "pet"
+          "type": "server.api.Pet"
          },
-         "type": "array"
+         "type": "Array"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/pet/findByTags",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "inType": "query",
+        "properties": [
+         {
+          "items": {
+           "name": "tags",
+           "type": "String"
+          },
+          "type": "Array"
+         }
+        ],
+        "type": "Object"
+       }
+      ],
+      "method": ":get",
+      "functionName": "findPetsByTags",
+      "responses": [
+       {
+        "schema": {
+         "items": {
+          "type": "server.api.Pet"
+         },
+         "type": "Array"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/pet/$petId",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "petId",
+        "inType": "path",
+        "type": "Int"
+       }
+      ],
+      "method": ":get",
+      "functionName": "getPetById",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.Pet",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/pet/$petId",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "petId",
+        "inType": "path",
+        "type": "Int"
+       },
+       {
+        "inType": "body",
+        "properties": [
+         {
+          "name": "name",
+          "type": "String"
+         },
+         {
+          "name": "status",
+          "type": "String"
+         }
+        ],
+        "type": "Object"
+       }
+      ],
+      "method": ":post",
+      "functionName": "updatePetWithForm",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/pet/$petId",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "petId",
+        "inType": "path",
+        "type": "Int"
+       },
+       {
+        "inType": "header",
+        "properties": [
+         {
+          "name": "api_key",
+          "type": "String"
+         }
+        ],
+        "type": "Object"
+       }
+      ],
+      "method": ":delete",
+      "functionName": "deletePet",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/store/order",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "inType": "body",
+        "ref": "server.api.Order",
+        "type": "ref"
+       }
+      ],
+      "method": ":post",
+      "functionName": "placeOrder",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.Order",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/store/order/$orderId",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "orderId",
+        "inType": "path",
+        "type": "Int"
+       }
+      ],
+      "method": ":get",
+      "functionName": "getOrderById",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.Order",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/store/order/$orderId",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "orderId",
+        "inType": "path",
+        "type": "Int"
+       }
+      ],
+      "method": ":delete",
+      "functionName": "deleteOrder",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "inType": "body",
+        "ref": "server.api.User",
+        "type": "ref"
+       }
+      ],
+      "method": ":post",
+      "functionName": "createUser",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user/login",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "inType": "query",
+        "properties": [
+         {
+          "name": "password",
+          "type": "String"
+         },
+         {
+          "name": "username",
+          "type": "String"
+         }
+        ],
+        "type": "Object"
+       }
+      ],
+      "method": ":get",
+      "functionName": "loginUser",
+      "responses": [
+       {
+        "schema": {
+         "type": "string"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user/logout",
+      "module": "server.api.Api",
+      "parameters": [],
+      "method": ":get",
+      "functionName": "logoutUser",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user/$username",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "username",
+        "inType": "path",
+        "type": "String"
+       }
+      ],
+      "method": ":get",
+      "functionName": "getUserByName",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.User",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user/$username",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "username",
+        "inType": "path",
+        "type": "String"
+       },
+       {
+        "inType": "body",
+        "ref": "server.api.User",
+        "type": "ref"
+       }
+      ],
+      "method": ":put",
+      "functionName": "updateUser",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
+        },
+        "description": "",
+        "statusCode": 200
+       }
+      ]
+     },
+     {
+      "prefix": "/user/$username",
+      "module": "server.api.Api",
+      "parameters": [
+       {
+        "name": "username",
+        "inType": "path",
+        "type": "String"
+       }
+      ],
+      "method": ":delete",
+      "functionName": "deleteUser",
+      "responses": [
+       {
+        "schema": {
+         "ref": "server.api.EmptyResponse",
+         "type": "ref"
         },
         "description": "",
         "statusCode": 200
