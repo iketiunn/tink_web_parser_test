@@ -26,6 +26,10 @@ Start
     - Nest type traverse is verbose, any better way than DRY?
     - Optional non-primitive type may refer to `TLazy`, could we reveal it?
     - Is there better union trick to prevent lots optional var in typedef?
+    - More type to handle (or ignore)
+        - `tink.Promise`
+        - `tink.io.RealSource`
+        - Some custom type
 |> Transform to swagger json format
 |> Integration with swagger UI | Generate client sdk from swagger json
 ```

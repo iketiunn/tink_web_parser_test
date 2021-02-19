@@ -259,6 +259,11 @@ class Parser {
 			// Get Method meta = not :none
 			var methodMetas = getMethodMeta(f.meta);
 			// Only get the first params in the first meta as prefix value
+			// trace(methodMetas);
+			if (methodMetas.length == 0) {
+				// trace(f.name);
+				continue;
+			}
 			var metaValue = methodMetas[0].params.length > 0 ? methodMetas[0].params[0].getValue() : '';
 			if (isEndpoint(f.meta)) {
 				var n:Node = {
@@ -303,7 +308,8 @@ class Parser {
 										switch (ff.type) {
 											case TInst(tt, params):
 												var data:Data = {
-													type: 'None'
+													name: ff.name,
+													type: 'Unknown'
 												};
 												if (tt.get().name == 'Array') {
 													data.type = 'Array';
@@ -313,18 +319,23 @@ class Parser {
 														case TInst(t, _params):
 															data.items = {
 																type: t.toString(),
-																name: ff.name
 															};
 														default:
+															data.items = {
+																type: 'Unknown',
+															};
 													}
 												} else {
 													data = {
 														type: tt.toString(),
-														name: ff.name
 													}
 												}
 												object.properties.push(data);
 											default:
+												object.properties.push({
+													name: ff.name,
+													type: 'Unknown'
+												});
 										}
 									}
 									n.parameters.push(object);
@@ -336,7 +347,7 @@ class Parser {
 										});
 									}
 								default:
-									trace(a);
+									// trace(a);
 									n.parameters.push({
 										type: "Unknown"
 									});
