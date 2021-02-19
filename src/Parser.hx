@@ -76,7 +76,7 @@ class Parser {
 	static function parseAbstract(name: String, t: haxe.macro.Type.Ref<haxe.macro.Type.AbstractType>, params:Array<haxe.macro.Type>) {
 		var def: Data = {
 			name: name,
-			type: 'unknown'
+			type: 'Unknown'
 		};
 		var typeName = t.get().name;
 		if (typeName == 'Null') {
@@ -86,7 +86,7 @@ class Parser {
 					// TODO: Maybe array, maybe other	
 					// if (t.get().name == 'Array') {
 					// 	var p: Data = {
-					// 		type: 'array',
+					// 		type: 'Array',
 					// 		name: name,
 					// 		required: false
 					// 	}
@@ -108,7 +108,7 @@ class Parser {
 					// 	trace(p);
 					// } else {
 					// 	return {
-					// 		type: t.get().name.toLowerCase(),
+					// 		type: t.toString(),
 					// 		name: name,
 					// 		required: false
 					// 	};
@@ -133,7 +133,7 @@ class Parser {
 					// It's a optional typedef, but showed as TLazy
 					// Without optional, it will be TType(...)
 					properties.push({
-						type: 'unknown',
+						type: 'Unknown',
 						name: f.name,
 						description: 'TODO'
 					});
@@ -147,7 +147,7 @@ class Parser {
 								// Maybe array, maybe other	
 								if (t.get().name == 'Array') {
 									var p: Data = {
-										type: 'array',
+										type: 'Array',
 										name: f.name,
 										required: false
 									}
@@ -179,7 +179,7 @@ class Parser {
 					var typeName = t.get().name;
 					if (typeName == 'Array') {
 						var p: Data = {
-							type: 'array',
+							type: 'Array',
 							name: f.name,
 						}
 						// Parse params
@@ -207,7 +207,7 @@ class Parser {
 	static function parseDefs(t: haxe.macro.Type.Ref<haxe.macro.Type.DefType>) {
 		var def: Data = {
 			name: t.toString(),
-			type: 'object',
+			type: 'Object',
 			properties: []
 		};
 		// trace(t.get().name, t.get().type);
@@ -265,13 +265,13 @@ class Parser {
 									parseDefs(t);
 								case TAbstract(t, _params):
 									n.parameters.push({
-										type: t.get().name.toLowerCase(),
+										type: t.toString(),
 										name: a.name,
 									});
 								case TAnonymous(aa):
 									// Could be trans to json stringify
 									var object:Data = {
-										type: 'object',
+										type: 'Object',
 										name: a.name,
 										properties: []
 									};
@@ -281,7 +281,7 @@ class Parser {
 										switch (ff.type) {
 											case TInst(tt, _params):
 												object.properties.push({
-													type: tt.get().name.toLowerCase(),
+													type: tt.toString(),
 													name: ff.name
 												});
 											default:
@@ -290,14 +290,14 @@ class Parser {
 									n.parameters.push(object);
 								case TInst(t, params): {
 										n.parameters.push({
-											type: t.get().name.toLowerCase(),
+											type: t.toString(),
 											name: a.name
 										});
 									}
 								default:
 									trace(a);
 									n.parameters.push({
-										type: "UNKNOWN"
+										type: "Unknown"
 									});
 							}
 						}
@@ -322,12 +322,12 @@ class Parser {
 								};
 								// Handle different type, some of them might have params
 								if (t.get().name == 'Array') {
-									data.type = 'array';
+									data.type = 'Array';
 									// Assume that array only have one type now, discourage multiple types in one array
 									switch (params[0]) {
 										case TType(t, _params):
 											data.items = {
-												type: t.get().name.toLowerCase()
+												type: t.toString()
 											};
 										default:
 									}
