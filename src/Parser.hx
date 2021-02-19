@@ -70,6 +70,17 @@ class Parser {
 
 		return false;
 	}
+
+	static function getParameterType(name: String) {
+		if (name == 'query') return 'query';
+		if (name == 'body') return 'body';
+		if (name == 'header') return 'header';
+		// in form
+		// in media
+		// in file
+
+		return 'path';
+	}
 	static var defs: Array<Def> = [];
 
 	// TODO, how far should a parser go deep into?
@@ -133,7 +144,7 @@ class Parser {
 					// It's a optional typedef, but showed as TLazy
 					// Without optional, it will be TType(...)
 					properties.push({
-						type: 'Unknown',
+						type: 'Dynamic',
 						name: f.name,
 						description: 'TODO'
 					});
@@ -205,6 +216,13 @@ class Parser {
 	}
 
 	static function parseDefs(t: haxe.macro.Type.Ref<haxe.macro.Type.DefType>) {
+		// Skip if already in defs
+		for (d in defs) {
+			if (d.name == t.toString()) {
+				return;
+			}
+		};
+
 		var def: Data = {
 			name: t.toString(),
 			type: 'Object',
@@ -254,42 +272,65 @@ class Parser {
 					case TFun(args, ret):
 						/** Parse parameters **/
 						for (a in args) {
+							// trace(a.name, getParameterType(a.name));
 							switch (a.t) {
 								case TType(t, _params):
 									n.parameters.push({
+										inType: getParameterType(a.name),
 										type: 'ref',
-										name: a.name,
+										// name: a.name,
 										ref: t.toString()
 									});
 									/** Parse Def **/
 									parseDefs(t);
 								case TAbstract(t, _params):
 									n.parameters.push({
+										inType: getParameterType(a.name),
 										type: t.toString(),
 										name: a.name,
 									});
 								case TAnonymous(aa):
 									// Could be trans to json stringify
 									var object:Data = {
+										inType: getParameterType(a.name),
 										type: 'Object',
-										name: a.name,
+										// name: a.name,
 										properties: []
 									};
 									for (ff in aa.get().fields) {
 										// trace(field.name);
 										// trace(ff.name);
 										switch (ff.type) {
-											case TInst(tt, _params):
-												object.properties.push({
-													type: tt.toString(),
-													name: ff.name
-												});
+											case TInst(tt, params):
+												var data:Data = {
+													type: 'None'
+												};
+												if (tt.get().name == 'Array') {
+													data.type = 'Array';
+													// trace(params);
+													// Assume that array only have one type now, discourage multiple types in one array
+													switch (params[0]) {
+														case TInst(t, _params):
+															data.items = {
+																type: t.toString(),
+																name: ff.name
+															};
+														default:
+													}
+												} else {
+													data = {
+														type: tt.toString(),
+														name: ff.name
+													}
+												}
+												object.properties.push(data);
 											default:
 										}
 									}
 									n.parameters.push(object);
 								case TInst(t, params): {
 										n.parameters.push({
+											inType: getParameterType(a.name),
 											type: t.toString(),
 											name: a.name
 										});
@@ -388,7 +429,7 @@ class Parser {
 		var root = _parse(cl);
 		// trace(root);
 		var ret = {
-			routes: root,
+			route: root,
 			defs: defs
 		};
 		Sys.println(haxe.Json.stringify(ret, null, ' '));
@@ -452,6 +493,7 @@ typedef Data = {
 	var ?properties:Array<Data>; // For object or nest object
 	var ?items:Data; // For array
 	var ?ref:String; // For reference
+	var ?inType: String;
 }
 
 typedef Response = {
@@ -460,7 +502,7 @@ typedef Response = {
 	var schema:Data;
 }
 
-typedef Def = Dynamic
+typedef Def = Data
 
 // Union type example
 // Data String
